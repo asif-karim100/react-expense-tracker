@@ -1,15 +1,22 @@
-import { Fragment } from "react";
-import './App.css';
+
+import { Route, Routes } from "react-router-dom";
+import Welcome from "./pages/Welcome";
 import Login from "./pages/Login"
+import Profile from "./pages/Profile";
 
-function App() {
+
+const App = () => {
+  const token = localStorage.getItem('token');
+
+  const isLoggedIn = !!token
   return (
-  
-        <Fragment>
-    <Login></Login>
-   </Fragment>
-   
-  );
-}
+    <Routes>
+    {isLoggedIn && <Route path="/" element={<Login/>} />}
 
-export default App;
+    {isLoggedIn && <Route path="/welcome" element={<Welcome/>}  />}
+    {isLoggedIn && <Route path="/profile" element={<Profile/>}  />}
+ 
+     </Routes>
+     );
+ }
+ export default App;
