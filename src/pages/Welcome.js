@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useContext } from "react";
 import AuthContext from "../store/auth-context";
 import axios from "axios";
-import "./Welcom.css";
+// import "./Welcom.css";
 
 const Welcome = () => {
   
@@ -37,6 +37,7 @@ return (
       <span> Your Profile is incomplete</span>
       <Link to="/profile">Complete Now</Link>
     </div>
+    <Link to='expenses'><button>Add Expenses</button></Link>
     <button onClick={verifyEmailHandler}>Verify Email</button>
   </div>
 );
