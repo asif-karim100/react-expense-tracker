@@ -1,16 +1,20 @@
 import axios from "axios";
 // import { useRef, useState } from "react";
 import "./Login.css";
-import { useContext, useRef, useState } from "react";
-import AuthContext from "../store/auth-context";
+import { useRef } from "react";
+// import AuthContext from "../store/auth-context";
 import { useNavigate,Link } from "react-router-dom";
+import { authActions } from "../store/authReducer";
+import { useDispatch, useSelector } from "react-redux";
 const Login = () => {
-  const [isLogin, setIsLogin] = useState(false);
-  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const isLogin = useSelector((state) => state.auth.isLogin);
+
+ 
   const navigate = useNavigate();
 
   const toggleButton = () => {
-    setIsLogin((prevStat) => !prevStat);
+    dispatch(authActions.toggle());
   };
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -34,10 +38,10 @@ const Login = () => {
           returnSecureToken: true,
         };
 
-        const response= await axios.post(Loginurl, authData);
-        authCtx.login(response.data.idToken);
-        console.log(authCtx.token);
-        navigate('/welcome')
+        const response = await axios.post(Loginurl, authData);
+        dispatch(authActions.login(response.data.idToken));
+        localStorage.setItem("token", response.data.idToken);
+        navigate("/welcome");
       } catch (error) {
         alert(error.response.data.error.message);
       }
@@ -59,9 +63,9 @@ const Login = () => {
           };
 
           const response = await axios.post(url, authData);
-          authCtx.login(response.data.idToken);
-          alert('Signup successful, You can Login now');
-          navigate('/')
+          dispatch(authActions.login(response.data.idToken));
+          alert("Signup successful, You can Login now");
+          navigate("/");
         } catch (error) {
           alert(error.response.data.error.message);
         }
@@ -74,7 +78,9 @@ const Login = () => {
   return (
     <div className="login">
       <form onSubmit={submitHandler}>
-        <h2>{isLogin ? "Signup" : "Login"}</h2>
+      <h2 className="text-lg text-gray-900">
+          {isLogin ? "Signup" : "Login"}
+        </h2>
         <input type="email" placeholder="Email" required ref={emailInputRef} />
         <input
           type="password"
@@ -91,11 +97,15 @@ const Login = () => {
           />
         )}
         <button type="submit">{isLogin ? "Signup" : "Login"}</button>
+        <Link to="forgot-password">
+          <button>Forgot Password</button>
+        </Link>
+        <button onClick={toggleButton}>
+        {isLogin
+            ? "Have an account? Login"
+            : "Don't have an account ? Signup"}
+        </button>
       </form>
-      <button onClick={toggleButton}>
-        {isLogin ? "Have an account? Login" : "Don't have an account ? Signup"}
-      </button>
-      <Link to='forgot-password'><button>Fogot Password</button></Link>
     </div>
   );
 };

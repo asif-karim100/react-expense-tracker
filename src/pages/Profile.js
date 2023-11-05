@@ -1,77 +1,94 @@
 import axios from "axios";
-// import { useRef } from "react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import AuthContext from "../store/auth-context";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import './Profile.css'
 
 const UpdateProfile = () => {
-    const authCtx = useContext(AuthContext);
-    const displayNameRef = useRef();
-    const photoUrlRef = useRef();
-    const navigate = useNavigate();
+  const tokenId = useSelector(state => state.auth.token);
+  const displayNameRef = useRef();
+  const photoUrlRef = useRef();
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  
 
   const updateProfileHandler = async (event) => {
     event.preventDefault();
 
-    const token =authCtx.token;
+    const token = tokenId
     const displayName = displayNameRef.current.value;
     const photoUrl = photoUrlRef.current.value;
-  
 
-    const url =
-      'https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyCgRIRM-lxcgOr8ZlinFrQV2WU-V0AB_nQ';
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyCgRIRM-lxcgOr8ZlinFrQV2WU-V0AB_nQ`;
 
     try {
-        const response = await axios.post(url, {
-            idToken: token,
+      const response = await axios.post(url, {
+        idToken: token,
         displayName: displayName,
         photoUrl: photoUrl,
         returnSecureToken: true,
-      
-        });
-        if (response.status === 200) {
-            navigate('/welcome')
-          } else {
-            // Handle error responses (e.g., invalid token)
-            console.error("Profile update failed:", response.data.error);
-          }
-        }catch (error) {
-            console.error("Profile update failed:", error);
-        }
-      
+      });
+
+      if (response.status === 200) {
+        navigate("/welcome");
+        
+
+      } else {
+        // Handle error responses (e.g., invalid token)
+        console.error("Profile update failed:", response.data.error);
+      }
+    } catch (error) {
+      console.error("Profile update failed:", error);
     }
-    const getUserDetails =useCallback(async() => {
-        const url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCgRIRM-lxcgOr8ZlinFrQV2WU-V0AB_nQ';
-        const token = authCtx.token;
-        const response = await axios.post(url, {
-          idToken:token
-        });
-        console.log(response);
-    
-        if(response.status === 200) {
-          setUserData(response.data.users[0]);
-        }else{
-          console.log('Failed to Fetch');
-        }
-      },[authCtx.token]);
-    
-      useEffect(() => {
-        getUserDetails();
-      }, [getUserDetails]);
-    
+  };
+
+  const getUserDetails = useCallback(async () => {
+    const url =
+      "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyCgRIRM-lxcgOr8ZlinFrQV2WU-V0AB_nQ";
+    const token = tokenId;
+    const response = await axios.post(url, {
+      idToken: token,
+    });
+
+    if (response.status === 200) {
+      setUserData(response.data.users[0]);
+    } else {
+      console.log("Failed to Fetch");
+    }
+  }, [tokenId]);
+
+  useEffect(() => {
+    getUserDetails();
+  }, [getUserDetails]);
 
   return (
-    <form onSubmit={updateProfileHandler}>
-      <h2>Update Profile</h2>
-      <input type="text" placeholder="Display Name" ref={displayNameRef} />
-      <input type="text" placeholder="Photo URL" ref={photoUrlRef} />
-      <input type="text" placeholder="Display Name" ref={displayNameRef} defaultValue={userData ? userData.displayName : ''} />
-      <input type="text" placeholder="Photo URL" ref={photoUrlRef} defaultValue={userData ? userData.photoUrl : ''} />
+    <form className="profile-form" onSubmit={updateProfileHandler}>
+      <h2 className="title">Update Profile</h2>
+      <input
+        type="text"
+        placeholder="Display Name"
+        ref={displayNameRef}
+        defaultValue={userData ? userData.displayName : ""}
+      />
+      <input
+        type="text"
+        placeholder="Photo URL"
+        ref={photoUrlRef}
+        defaultValue={userData ? userData.photoUrl : ""}
+      />
       <button type="submit">Update Profile</button>
     </form>
   );
 };
 
 export default UpdateProfile;
+
+
+
+
+
+
+
+
+
+
+
